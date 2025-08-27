@@ -1,21 +1,18 @@
-import Header from "./components/Header"
-import Footer from "./components/Footer"
-import Guitar from "./components/Guitar"
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import Guitar from "./components/Guitar";
 
-import useCart from "./hooks/UseCart";
+import { cartReducer, initialState } from "./reducers/cart-reducer";
+import { useReducer } from "react";
 
-function App() {  
-  const { cart, guitars, addToCart, removeFromCart, increaseQuantity, decreaseQuantity, clearCart, cartTotal } = useCart();  
-
+function App() {    
+  const [ state, dispatch ] = useReducer(cartReducer, initialState);  
+  
   return (
     <>
       <Header
-        cart={ cart }         
-        removeFromCart={ removeFromCart }
-        increaseQuantity={ increaseQuantity }
-        decreaseQuantity={ decreaseQuantity }
-        clearCart={ clearCart }
-        cartTotal={ cartTotal }
+        cart={ state!.cart }
+        dispatch={dispatch}
       />
 
       <main className="container-xl mt-5">
@@ -23,11 +20,11 @@ function App() {
 
         <div className="row mt-5">
           {
-            guitars.map((guitar) => (
+            state?.data.map((guitar) => (
               <Guitar
-                key={guitar.id}
-                addToCart={addToCart}                
-                guitar={guitar}                                
+                key={guitar.id}                
+                guitar={guitar}
+                dispatch={dispatch}                                
               />
             ))
           }

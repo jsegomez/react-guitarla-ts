@@ -1,15 +1,20 @@
+import { useMemo, type ActionDispatch } from "react";
 import type { Guitar } from "../data/db";
+import type { CartActions } from "../reducers/cart-reducer";
 
 type GuitarProps = {
-  cart: Guitar[];
-  clearCart: () => void;
-  removeFromCart: (id: number) => void;
-  increaseQuantity: (id: number) => void;
-  decreaseQuantity: (id: number) => void;
-  cartTotal: number;
+  cart: Guitar[];  
+  dispatch: ActionDispatch<[action: CartActions]>;  
 }
 
-export default function Header({ cart, clearCart, removeFromCart, increaseQuantity, decreaseQuantity, cartTotal }: GuitarProps) {
+export default function Header({
+  cart,  
+  dispatch,
+}: GuitarProps) {
+
+  const total = useMemo(() => {
+    return cart.reduce((acc, item) => acc + item.price * (item.quantity ?? 0), 0);
+  }, [cart]);
 
   return (
     <header className="py-5 header">
@@ -56,8 +61,9 @@ export default function Header({ cart, clearCart, removeFromCart, increaseQuanti
                                 <td className="flex align-items-start gap-4">
                                   <button
                                     type="button"
-                                    className="btn btn-dark"
-                                    onClick={() => decreaseQuantity(item.id)}
+                                    className="btn btn-dark disabled:opacity-50"
+                                    disabled={item.quantity === 1}
+                                    onClick={() => dispatch({ type: "DECREASE_QUANTITY", payload: { id: item.id } })}
                                   >
                                     -
                                   </button>
@@ -65,7 +71,7 @@ export default function Header({ cart, clearCart, removeFromCart, increaseQuanti
                                   <button
                                     type="button"
                                     className="btn btn-dark"
-                                    onClick={() => increaseQuantity(item.id)}
+                                    onClick={() => dispatch({ type: "INCREASE_QUANTITY", payload: { id: item.id } })}
                                   >
                                     +
                                   </button>
@@ -74,7 +80,7 @@ export default function Header({ cart, clearCart, removeFromCart, increaseQuanti
                                   <button
                                     className="btn btn-danger"
                                     type="button"
-                                    onClick={() => removeFromCart(item.id)}
+                                    onClick={() => dispatch({ type: "REMOVE_FROM_CART", payload: { id: item.id } })}
                                   >
                                     X
                                   </button>
@@ -84,8 +90,10 @@ export default function Header({ cart, clearCart, removeFromCart, increaseQuanti
                           }
                         </tbody>
                       </table>
-                      <p className="text-end">Total pagar: <span className="fw-bold">${ cartTotal }</span></p>
-                      <button className="btn btn-dark w-100 mt-3 p-2" onClick={clearCart}>Vaciar Carrito</button>
+                      <p className="text-end">Total pagar: <span className="fw-bold">${ total }</span></p>
+                      <button className="btn btn-dark w-100 mt-3 p-2" onClick={() => dispatch({ type: "CLEAR_CART" })}>
+                        Vaciar Carrito
+                        </button>
                     </>
                   )
                 }
