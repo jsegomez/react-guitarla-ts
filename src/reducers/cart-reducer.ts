@@ -13,9 +13,19 @@ export type CartState = {
     cart: Guitar[];
 }
 
+const initialCart = (): Guitar[] => {
+    try {
+        const cart = localStorage.getItem('cart');
+        return cart ? JSON.parse(cart) : [];
+    } catch (error) {
+        console.error('Error al cargar el carrito desde localStorage:', error);
+        return [];
+    }
+}
+
 export const initialState: CartState = {
     data: db,
-    cart: []
+    cart: initialCart()
 }
 
 export const cartReducer = (state: CartState = initialState, action: CartActions) => {
